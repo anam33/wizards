@@ -1,0 +1,149 @@
+30
+a b c d e f g h i j k l m n o p q r s t u v w x y z 1 2 3 4
+
+b a c
+c b a
+
+d a c
+b d a
+b a d
+
+c e a
+e d c
+e b d
+
+f a c
+b f a
+e f b
+d f e
+f c d
+
+g a c
+b g a
+g e b
+d g e
+f g d
+
+c h a
+h f c
+g h f
+h d g
+
+c i a
+i f c
+g i f
+i h g
+d i h
+i e d
+i b e
+i a b
+
+c j a
+j f c
+h j g
+
+k a c
+i k a
+k b i
+e k b
+k d e
+h k d
+
+c l a
+l f c
+l g f
+l j g
+h l j
+k l h
+d l k
+l e d
+l b e
+
+c m a
+m h j
+k m h
+m d k
+
+n a c
+
+o n c
+o a n
+i o a
+b o i
+l o b
+
+p n c
+a p n 
+p i a
+p b i
+p o b
+p l o
+p e l
+d p e
+
+q n c 
+a q n 
+q i a
+b q i 
+q o b
+l q o
+
+c r n
+f r c
+r g f
+j r g
+r h j
+
+c s n
+
+t n s
+t a n
+t i a
+t b i
+t o b
+q t o
+
+s u n
+c u s
+f u c
+g u f
+
+s v n
+v c s
+f v c
+v u f
+r v j
+
+s w n
+
+x n h
+
+y x w
+n y x
+y a n
+i y a
+y b i
+
+z x b
+n z x
+a z n
+
+1 x w
+n 1 x
+1 z n
+a 1 z
+
+w 2 x
+2 s w
+c 2 s
+2 f c
+u 2 f
+
+3 x w
+3 n x
+3 z n
+1 3 z
+3 a 1
+i 3 a
+
+w 4 x
