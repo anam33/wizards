@@ -20,8 +20,46 @@ def solve(num_wizards, num_constraints, wizards, constraints):
     Output:
         An array of wizard names in the ordering your algorithm returns
     """
-    return []
+    G = nx.Graph()
+    edges = []
+    ddict = {}
+    for con in constraints: 
+        if (con[0], con[1]) not in edges:
+            edges.append((con[0],con[1]))
+        if (con[0], con[2]) not in edges:
+            edges.append((con[0],con[2]))
+        if (con[1], con[2]) not in edges:
+            edges.append((con[1],con[2]))
+    G.add_edges_from(edges)
 
+    for wiz in wizards:
+        ddict[wiz] = G.degree(wiz)
+
+    start = max(ddict, key=ddict.get)
+
+    final = hamilton(G, start)
+    return final
+
+def hamilton(G, start):
+    F = [(G,[G.nodes()[0]])]
+    n = G.number_of_nodes()
+    result = []
+    while F:
+        graph,path = F.pop()
+        confs = []
+        for node in graph.neighbors(path[-1]):
+            conf_p = path[:]
+            conf_p.append(node)
+            conf_g = nx.Graph(graph)
+            conf_g.remove_node(path[-1])
+            confs.append((conf_g,conf_p))
+        for g,p in confs:
+            result = p
+            if len(p)==n:
+                return p
+            else:
+                F.append((g,p))
+    return result
 """
 ======================================================================
    No need to change any code below this line
