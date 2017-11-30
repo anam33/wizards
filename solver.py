@@ -65,7 +65,6 @@ def solve(num_wizards, num_constraints, wizards, constraints):
 
     start = max(ddict, key=ddict.get)
     final = hamilton(G, start)
-    plt.subplot(121)
     nx.draw_networkx(G)
     plt.show()
     print("executed")
