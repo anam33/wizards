@@ -1,5 +1,7 @@
 import argparse
 import networkx as nx
+import random
+import matplotlib.pyplot as plt
 
 """
 ======================================================================
@@ -23,25 +25,54 @@ def solve(num_wizards, num_constraints, wizards, constraints):
     G = nx.Graph()
     edges = []
     ddict = {}
+    #need a way to deal with constraints that don't tell us anyting new
     for con in constraints: 
         if (con[0], con[1]) not in edges:
             edges.append((con[0],con[1]))
-        if (con[0], con[2]) not in edges:
-            edges.append((con[0],con[2]))
-        if (con[1], con[2]) not in edges:
-            edges.append((con[1],con[2]))
-    G.add_edges_from(edges)
+            G.add_edge(con[0],con[1])
+        # if (con[0], con[2]) in edges and (con[1], con[2]) not in edges:
+        #     edges.append((con[1],con[2]))
+        #     G.add_edge(con[1],con[2])
+        # elif (con[1], con[2]) in edges and (con[0], con[2]) not in edges:
+        #     edges.append((con[0],con[2]))
+        #     G.add_edge(con[0],con[2])
+        elif (con[1], con[2]) not in edges and (con[0], con[2]) not in edges:
+            if G.degree(con[0]) == {} and G.degree(con[1]) == {}:
+                k = random.randint(0, 1)
+                edges.append((con[k],con[2]))
+                G.add_edge(con[k],con[2])
+            elif G.degree(con[0]) == {}: 
+                edges.append((con[0],con[2]))
+                G.add_edge(con[0],con[2])
+            elif G.degree(con[1]) == {}:
+                edges.append((con[1],con[2]))
+                G.add_edge(con[1],con[2])
+            elif G.degree(con[0]) < G.degree(con[1]):
+                edges.append((con[0],con[2]))
+                G.add_edge(con[0],con[2])
+            elif G.degree(con[0]) > G.degree(con[1]):
+                edges.append((con[1],con[2]))
+                G.add_edge(con[1],con[2])
+            else:
+                k = random.randint(0, 1)
+                edges.append((con[k],con[2]))
+                G.add_edge(con[k],con[2])
+
+    #G.add_edges_from(edges)
 
     for wiz in wizards:
         ddict[wiz] = G.degree(wiz)
 
     start = max(ddict, key=ddict.get)
-
     final = hamilton(G, start)
+    plt.subplot(121)
+    nx.draw_networkx(G)
+    plt.show()
+    print("executed")
     return final
 
 def hamilton(G, start):
-    F = [(G,[G.nodes()[0]])]
+    F = [(G,[start])]
     n = G.number_of_nodes()
     result = []
     while F:
