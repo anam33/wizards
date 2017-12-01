@@ -25,29 +25,63 @@ def solve(num_wizards, num_constraints, wizards, constraints):
     """
     G = nx.Graph()
     edges = []
+    removed = []
     # ddict = {}
-    #need a way to deal with constraints that don't tell us anyting new
     for con in constraints: 
-        if (con[0], con[1]) not in edges:
-            edges.append((con[0],con[1]))
-            G.add_edge(con[0],con[1])
-        # if (con[0], con[2]) in edges and (con[1], con[2]) not in edges:
-        #     edges.append((con[1],con[2]))
-        #     G.add_edge(con[1],con[2])
-        # elif (con[1], con[2]) in edges and (con[0], con[2]) not in edges:
-        #     edges.append((con[0],con[2]))
-        #     G.add_edge(con[0],con[2])
-        # elif (con[1], con[2]) not in edges and (con[0], con[2]) not in edges:
-        if G.degree(con[0]) < G.degree(con[1]):
-            edges.append((con[0],con[2]))
-            G.add_edge(con[0],con[2])
-        elif G.degree(con[0]) > G.degree(con[1]):
-            edges.append((con[1],con[2]))
-            G.add_edge(con[1],con[2])
+        if (con[0], con[1]) not in edges and (con[0], con[1]) not in removed:
+            if G.has_node(con[0]) and G.has_node(con[1]):
+                if con[0] not in G.neighbors(con[1]):
+                    edges.append((con[0],con[1]))
+                    G.add_edge(con[0],con[1])
+            else:
+                edges.append((con[0],con[1]))
+                G.add_edge(con[0],con[1])
+        if G.has_edge(con[0], con[2]) and G.has_edge(con[1], con[2]):
+            if (con[1], con[2]) not in edges and (con[0], con[2]) not in edges:
+                G.remove_edge(con[0], con[2])
+                G.remove_edge(con[1], con[2])
+                removed.append((con[0], con[2]))
+                removed.append((con[1], con[2]))
+            elif (con[1], con[2]) in edges and (con[0], con[2]) not in edges:
+                G.remove_edge(con[0], con[2])
+                removed.append((con[0], con[2]))
+            elif (con[1], con[2]) not in edges and (con[0], con[2]) in edges:
+                G.remove_edge(con[1], con[2])
+                removed.append((con[1], con[2]))
         else:
-            k = random.randint(0, 1)
-            edges.append((con[k],con[2]))
-            G.add_edge(con[k],con[2])
+            if (con[1],con[2]) not in removed:
+                if G.has_node(con[1]) and G.has_node(con[2]):
+                    if con[1] not in G.neighbors(con[2]):
+                        G.add_edge(con[1],con[2])
+                else:
+                    G.add_edge(con[1],con[2])
+            if (con[0],con[2]) not in removed:
+                if G.has_node(con[0]) and G.has_node(con[2]):
+                    if con[0] not in G.neighbors(con[2]):
+                        G.add_edge(con[0],con[2])
+                else:
+                    G.add_edge(con[0],con[2])
+    # for con in constraints: 
+    #     if (con[0], con[1]) not in edges:
+    #         edges.append((con[0],con[1]))
+    #         G.add_edge(con[0],con[1])
+    #     if (con[0], con[2]) in edges and (con[1], con[2]) not in edges:
+    #         edges.append((con[1],con[2]))
+    #         G.add_edge(con[1],con[2])
+    #     elif (con[1], con[2]) in edges and (con[0], con[2]) not in edges:
+    #         edges.append((con[0],con[2]))
+    #         G.add_edge(con[0],con[2])
+    #     elif (con[1], con[2]) not in edges and (con[0], con[2]) not in edges:
+    #         if G.degree(con[0]) < G.degree(con[1]):
+    #             edges.append((con[0],con[2]))
+    #             G.add_edge(con[0],con[2])
+    #         elif G.degree(con[0]) > G.degree(con[1]):
+    #             edges.append((con[1],con[2]))
+    #             G.add_edge(con[1],con[2])
+    #         else:
+    #             k = random.randint(0, 1)
+    #             edges.append((con[k],con[2]))
+    #             G.add_edge(con[k],con[2])
 
     #G.add_edges_from(edges)
 
@@ -56,8 +90,8 @@ def solve(num_wizards, num_constraints, wizards, constraints):
 
     # start = min(ddict, key=ddict.get)
     final = hamiltonian_path(G)
-    # nx.draw_networkx(G)
-    # plt.show()
+    nx.draw_networkx(G)
+    plt.show()
     print("executed")
     return final
 

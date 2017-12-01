@@ -3,6 +3,8 @@ import networkx as nx
 import random
 import matplotlib.pyplot as plt
 from networkx.utils import arbitrary_element
+from satispy import Variable, Cnf 
+from satispy.solver import Minisat
 
 """
 ======================================================================
@@ -23,13 +25,56 @@ def solve(num_wizards, num_constraints, wizards, constraints):
     Output:
         An array of wizard names in the ordering your algorithm returns
     """
+    SATDict = {}
+    #SATDict has key: tuple, value: Variable(tuple) <-- this just returns the name but sets it up for SAT
+    exp = ''
+    solver = Minisat()
+    for con in constraints:
+        tups = [(con[0], con[1]), (con[1], con[0]), (con[0], con[2]), (con[2], con[0]), (con[1], con[2]), (con[2], con[1])]
+        for t in tups:
+            if t not in list(SATDict.values()):
+                SATDict[t] = Variable(t)
 
-# Assuming dict[sat variable] = wizard tuple is called "SATDict"
+        texp = (SATDict[(con[0], con[1])] ^ SATDict[(con[1], con[0])]) &
+                ((SATDict[(con[0], con[1])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^
+                (SATDict[(con[1], con[0])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^
+                (SATDict[(con[0], con[1])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])]) ^
+                (SATDict[(con[1], con[0])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])]))
+            """
+            I think it could reduce to this because to alternating AB or BA is already accounted for
+            so we could make it as below
+            (AB xor BA) and ((AC and BC) xor (CA and CB))
+            exp = (SATDict[(con[0], con[1])] ^ SATDict[(con[1], con[0])]) &
+                ((SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^
+                (SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])]))
+            or 
+            (AB and AC and BC) xor (AB and CA and CB) xor (BA and AC and BC) xor (BA and CA and CB))
+            exp = (SATDict[(con[0], con[1])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) |
+                (SATDict[(con[1], con[0])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) |
+                (SATDict[(con[0], con[1])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])]) |
+                (SATDict[(con[1], con[0])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])])
+            """
+        if exp == '':
+            exp = texp
+        else:
+            exp = exp & texp
+    solution = solver.solve(exp)
+    """
+    need to process solution before feeding to top sort
+    solution[tuple] will return true or false assignment
+    """
+    solvedSAT = []
+    for key in SATDict.keys():
+        if solution[key]:
+            solvedSAT.append(key)
+    sol = topologicalSort(solvedSAT)
+    return sol
 
 def topologicalSort(solvedSAT):
     G = nx.DiGraph()
     for var in solvedSAT:
-        s, t = SATDict[var]
+        #note: I changed following line because you can directly get tuple now
+        s, t = var
         G.add_edge(s, t)
     generator = nx.topological_sort(G)
     final = []
