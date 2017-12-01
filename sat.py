@@ -9,12 +9,12 @@ from satispy.solver import Minisat
 
 def poo():
 	solver = Minisat()
-	AB = Variable('ab')
-	AC = Variable('ac')
-	BA = Variable('ba')
-	BC = Variable('bc')
-	CA = Variable('ca')
-	CB = Variable('cb')
+	AB = Variable('AB')
+	AC = Variable('AC')
+	BA = Variable('BA')
+	BC = Variable('BC')
+	CA = Variable('CA')
+	CB = Variable('CB')
 
 	exp = (AB & AC & BC) ^ (AB & CA & CB) ^ (AC & BA & BC) ^ (BA & CA & CB)
 
@@ -23,9 +23,9 @@ def poo():
 	if solution.success:
 		print(solution[AB])
 		print(solution[AC])
-		print(solution[AB]) 
-		print(solution[AB])
-		print(solution[AB])
-		print(solution[AB])
+		print(solution[BA]) 
+		print(solution[BC])
+		print(solution[CA])
+		print(solution[CB])
 
 poo()
