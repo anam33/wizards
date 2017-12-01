@@ -49,9 +49,9 @@ def solve(num_wizards, num_constraints, wizards, constraints):
                 (SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])]))
             or 
             (AB and AC and BC) xor (AB and CA and CB) xor (BA and AC and BC) xor (BA and CA and CB))
-            exp = (SATDict[(con[0], con[1])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) |
-                (SATDict[(con[1], con[0])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) |
-                (SATDict[(con[0], con[1])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])]) |
+            exp = (SATDict[(con[0], con[1])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^
+                (SATDict[(con[1], con[0])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^
+                (SATDict[(con[0], con[1])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])]) ^
                 (SATDict[(con[1], con[0])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])])
             """
         if exp == '':
