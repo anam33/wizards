@@ -32,28 +32,35 @@ def solve(num_wizards, num_constraints, wizards, constraints):
     for con in constraints:
         tups = [(con[0], con[1]), (con[1], con[0]), (con[0], con[2]), (con[2], con[0]), (con[1], con[2]), (con[2], con[1])]
         for t in tups:
-            if t not in list(SATDict.values()):
-                SATDict[t] = Variable(t)
+            # if t not in SATDict.keys():
+            #     SATDict[t] = Variable(t)
 
-        texp = (SATDict[(con[0], con[1])] ^ SATDict[(con[1], con[0])]) &
-                ((SATDict[(con[0], con[1])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^
-                (SATDict[(con[1], con[0])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^
-                (SATDict[(con[0], con[1])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])]) ^
-                (SATDict[(con[1], con[0])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])]))
-            """
-            I think it could reduce to this because to alternating AB or BA is already accounted for
-            so we could make it as below
-            (AB xor BA) and ((AC and BC) xor (CA and CB))
-            exp = (SATDict[(con[0], con[1])] ^ SATDict[(con[1], con[0])]) &
-                ((SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^
-                (SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])]))
-            or 
-            (AB and AC and BC) xor (AB and CA and CB) xor (BA and AC and BC) xor (BA and CA and CB))
-            exp = (SATDict[(con[0], con[1])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^
-                (SATDict[(con[1], con[0])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^
-                (SATDict[(con[0], con[1])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])]) ^
-                (SATDict[(con[1], con[0])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])])
-            """
+        texp = exp = (SATDict[(con[0], con[1])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^ \
+            (SATDict[(con[1], con[0])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^ \
+            (SATDict[(con[0], con[1])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])]) ^ \
+            (SATDict[(con[1], con[0])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])])
+
+
+        # texp = (SATDict[(con[0], con[1])] ^ SATDict[(con[1], con[0])]) & \
+        #         ((SATDict[(con[0], con[1])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^ \
+        #         (SATDict[(con[1], con[0])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^ \
+        #         (SATDict[(con[0], con[1])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])]) ^ \
+        #         (SATDict[(con[1], con[0])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])])) \
+
+        (""",.......................................................................................................//
+        I think it could reduce to this because to alternating AB or BA is already accounted for
+        so we could make it as below
+        (AB xor BA) and ((AC and BC) xor (CA and CB))
+        exp = (SATDict[(con[0], con[1])] ^ SATDict[(con[1], con[0])]) &
+            ((SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^
+            (SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])]))
+        or 
+        (AB and AC and BC) xor (AB and CA and CB) xor (BA and AC and BC) xor (BA and CA and CB))
+        exp = (SATDict[(con[0], con[1])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^
+            (SATDict[(con[1], con[0])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^
+            (SATDict[(con[0], con[1])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])]) ^
+            (SATDict[(con[1], con[0])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])])
+        """)
         if exp == '':
             exp = texp
         else:
@@ -64,11 +71,11 @@ def solve(num_wizards, num_constraints, wizards, constraints):
     solution[tuple] will return true or false assignment
     """
     solvedSAT = []
-    for key in SATDict.keys():
-        if solution[key]:
-            solvedSAT.append(key)
+    # for key in SATDict.keys():
+    #     if solution[SATDict[key]]:
+    #         solvedSAT.append(key)
     sol = topologicalSort(solvedSAT)
-    return sol
+    print sol
 
 def topologicalSort(solvedSAT):
     G = nx.DiGraph()
@@ -83,6 +90,9 @@ def topologicalSort(solvedSAT):
         final[index] = wiz
         index += 1
     return final
+
+
+
 
 
 """
@@ -114,9 +124,9 @@ def write_output(filename, solution):
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description = "Constraint Solver.")
     parser.add_argument("input_file", type=str, help = "___.in")
-    parser.add_argument("output_file", type=str, help = "___.out")
+    # parser.add_argument("output_file", type=str, help = "___.out")
     args = parser.parse_args()
 
     num_wizards, num_constraints, wizards, constraints = read_input(args.input_file)
     solution = solve(num_wizards, num_constraints, wizards, constraints)
-    write_output(args.output_file, solution)
+    # write_output(args.output_file, solution)
