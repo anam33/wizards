@@ -25,7 +25,7 @@ def solve(num_wizards, num_constraints, wizards, constraints):
     """
     G = nx.Graph()
     edges = []
-    ddict = {}
+    # ddict = {}
     #need a way to deal with constraints that don't tell us anyting new
     for con in constraints: 
         if (con[0], con[1]) not in edges:
@@ -51,36 +51,36 @@ def solve(num_wizards, num_constraints, wizards, constraints):
 
     #G.add_edges_from(edges)
 
-    for wiz in wizards:
-        ddict[wiz] = G.degree(wiz)
+    # for wiz in wizards:
+    #     ddict[wiz] = G.degree(wiz)
 
-    start = min(ddict, key=ddict.get)
+    # start = min(ddict, key=ddict.get)
     final = hamiltonian_path(G)
     # nx.draw_networkx(G)
     # plt.show()
     print("executed")
     return final
 
-def hamiltonian_path(G, start):
-    F = [(G,[start])]
-    n = G.number_of_nodes()
-    result = []
-    while F:
-        graph,path = F.pop()
-        confs = []
-        for node in graph.neighbors(path[-1]):
-            conf_p = path[:]
-            conf_p.append(node)
-            conf_g = nx.Graph(graph)
-            conf_g.remove_node(path[-1])
-            confs.append((conf_g,conf_p))
-        for g,p in confs:
-            result = p
-            if len(p)==n:
-                return p
-            else:
-                F.append((g,p))
-    return result
+# def hamiltonian_path(G, start):
+#     F = [(G,[start])]
+#     n = G.number_of_nodes()
+#     result = []
+#     while F:
+#         graph,path = F.pop()
+#         confs = []
+#         for node in graph.neighbors(path[-1]):
+#             conf_p = path[:]
+#             conf_p.append(node)
+#             conf_g = nx.Graph(graph)
+#             conf_g.remove_node(path[-1])
+#             confs.append((conf_g,conf_p))
+#         for g,p in confs:
+#             result = p
+#             if len(p)==n:
+#                 return p
+#             else:
+#                 F.append((g,p))
+#     return result
 
 def hamiltonian_path(G):
     """Returns a Hamiltonian path in the given tournament graph.
@@ -108,7 +108,11 @@ def hamiltonian_path(G):
         return []
     if len(G) == 1:
         return [arbitrary_element(G)]
-    v = arbitrary_element(G)
+    ddict = {}
+    for wiz in G.nodes():
+        ddict[wiz] = G.degree(wiz)
+    v = min(ddict, key=ddict.get)
+    #v = arbitrary_element(G)
     hampath = hamiltonian_path(G.subgraph(set(G) - {v}))
     # Get the index of the first node in the path that does *not* have
     # an edge to `v`, then insert `v` before that node.
@@ -170,9 +174,9 @@ def write_output(filename, solution):
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description = "Constraint Solver.")
     parser.add_argument("input_file", type=str, help = "___.in")
-    # parser.add_argument("output_file", type=str, help = "___.out")
+    parser.add_argument("output_file", type=str, help = "___.out")
     args = parser.parse_args()
 
     num_wizards, num_constraints, wizards, constraints = read_input(args.input_file)
     solution = solve(num_wizards, num_constraints, wizards, constraints)
-    # write_output(args.output_file, solution)
+    write_output(args.output_file, solution)
