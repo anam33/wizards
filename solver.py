@@ -2,6 +2,7 @@ import argparse
 import networkx as nx
 import random
 import matplotlib.pyplot as plt
+from networkx.utils import arbitrary_element
 
 """
 ======================================================================
@@ -54,13 +55,13 @@ def solve(num_wizards, num_constraints, wizards, constraints):
         ddict[wiz] = G.degree(wiz)
 
     start = min(ddict, key=ddict.get)
-    final = hamilton(G, start)
+    final = hamiltonian_path(G)
     # nx.draw_networkx(G)
     # plt.show()
     print("executed")
     return final
 
-def hamilton(G, start):
+def hamiltonian_path(G, start):
     F = [(G,[start])]
     n = G.number_of_nodes()
     result = []
@@ -80,6 +81,66 @@ def hamilton(G, start):
             else:
                 F.append((g,p))
     return result
+
+def hamiltonian_path(G):
+    """Returns a Hamiltonian path in the given tournament graph.
+
+    Each tournament has a Hamiltonian path. If furthermore, the
+    tournament is strongly connected, then the returned Hamiltonian path
+    is a Hamiltonian cycle (by joining the endpoints of the path).
+
+    Parameters
+    ----------
+    G : NetworkX graph
+    A directed graph representing a tournament.
+
+    Returns
+    -------
+    bool
+    Whether the given graph is a tournament graph.
+
+    Notes
+    -----
+    This is a recursive implementation with an asymptotic running time
+    of $O(n^2)$, ignoring multiplicative polylogarithmic factors, where
+    $n$ is the number of nodes in the graph."""
+    if len(G) == 0:
+        return []
+    if len(G) == 1:
+        return [arbitrary_element(G)]
+    v = arbitrary_element(G)
+    hampath = hamiltonian_path(G.subgraph(set(G) - {v}))
+    # Get the index of the first node in the path that does *not* have
+    # an edge to `v`, then insert `v` before that node.
+    index = index_satisfying(hampath, lambda u: v not in G[u])
+    hampath.insert(index, v)
+    return hampath
+
+def index_satisfying(iterable, condition):
+    """Returns the index of the first element in `iterable` that
+    satisfies the given condition.
+
+    If no such element is found (that is, when the iterable is
+    exhausted), this returns the length of the iterable (that is, one
+    greater than the last index of the iterable).
+
+    `iterable` must not be empty. If `iterable` is empty, this
+    function raises :exc:`ValueError`.
+
+    """
+    # Pre-condition: iterable must not be empty.
+    for i, x in enumerate(iterable):
+        if condition(x):
+            return i
+    # If we reach the end of the iterable without finding an element
+    # that satisfies the condition, return the length of the iterable,
+    # which is one greater than the index of its last element. If the
+    # iterable was empty, `i` will not be defined, so we raise an
+    # exception.
+    try:
+        return i + 1
+    except NameError:
+        raise ValueError('iterable must be non-empty')    
 """
 ======================================================================
    No need to change any code below this line
@@ -109,9 +170,9 @@ def write_output(filename, solution):
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description = "Constraint Solver.")
     parser.add_argument("input_file", type=str, help = "___.in")
-    parser.add_argument("output_file", type=str, help = "___.out")
+    # parser.add_argument("output_file", type=str, help = "___.out")
     args = parser.parse_args()
 
     num_wizards, num_constraints, wizards, constraints = read_input(args.input_file)
     solution = solve(num_wizards, num_constraints, wizards, constraints)
-    write_output(args.output_file, solution)
+    # write_output(args.output_file, solution)
