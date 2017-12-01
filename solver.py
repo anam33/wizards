@@ -36,37 +36,27 @@ def solve(num_wizards, num_constraints, wizards, constraints):
         # elif (con[1], con[2]) in edges and (con[0], con[2]) not in edges:
         #     edges.append((con[0],con[2]))
         #     G.add_edge(con[0],con[2])
-        elif (con[1], con[2]) not in edges and (con[0], con[2]) not in edges:
-            if G.degree(con[0]) == {} and G.degree(con[1]) == {}:
-                k = random.randint(0, 1)
-                edges.append((con[k],con[2]))
-                G.add_edge(con[k],con[2])
-            elif G.degree(con[0]) == {}: 
-                edges.append((con[0],con[2]))
-                G.add_edge(con[0],con[2])
-            elif G.degree(con[1]) == {}:
-                edges.append((con[1],con[2]))
-                G.add_edge(con[1],con[2])
-            elif G.degree(con[0]) < G.degree(con[1]):
-                edges.append((con[0],con[2]))
-                G.add_edge(con[0],con[2])
-            elif G.degree(con[0]) > G.degree(con[1]):
-                edges.append((con[1],con[2]))
-                G.add_edge(con[1],con[2])
-            else:
-                k = random.randint(0, 1)
-                edges.append((con[k],con[2]))
-                G.add_edge(con[k],con[2])
+        # elif (con[1], con[2]) not in edges and (con[0], con[2]) not in edges:
+        if G.degree(con[0]) < G.degree(con[1]):
+            edges.append((con[0],con[2]))
+            G.add_edge(con[0],con[2])
+        elif G.degree(con[0]) > G.degree(con[1]):
+            edges.append((con[1],con[2]))
+            G.add_edge(con[1],con[2])
+        else:
+            k = random.randint(0, 1)
+            edges.append((con[k],con[2]))
+            G.add_edge(con[k],con[2])
 
     #G.add_edges_from(edges)
 
     for wiz in wizards:
         ddict[wiz] = G.degree(wiz)
 
-    start = max(ddict, key=ddict.get)
+    start = min(ddict, key=ddict.get)
     final = hamilton(G, start)
-    nx.draw_networkx(G)
-    plt.show()
+    # nx.draw_networkx(G)
+    # plt.show()
     print("executed")
     return final
 
