@@ -72,6 +72,15 @@ def solve(num_wizards, num_constraints, wizards, constraints):
             (SATDict[(con[1], con[0])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])])
         """
         exp = exp & texp
+    for w1 in wizards:
+        for w2 in wizards:
+            for w3 in wizards:
+                tups = [(w1, w2), (w2, w3), (w1, w3)]
+                for t in tups:
+                    if t not in list(SATDict.keys()):
+                        SATDict[t] = Variable(t)
+                texp2 = (SATDict[tups[0]] & SATDict[tups[1]] >> SATDict[tups[2]])
+                exp = exp & texp2
     solution = solver.solve(exp)
     """
     need to process solution before feeding to top sort
