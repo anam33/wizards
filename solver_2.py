@@ -43,13 +43,13 @@ def solve(num_wizards, num_constraints, wizards, constraints):
         # CA = SATDict[(con[2], con[0])]
         # (AB & AC & BC) | (AB & CA & CB) | (BA & AC & BC) | (BA & CA & CB) & (AB ^ BA) & (AC ^ CA) & (CB ^ BC)
 
-        texp = (SATDict[(con[0], con[1])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) | \
+        texp = (((SATDict[(con[0], con[1])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) | \
                 (SATDict[(con[0], con[1])] & SATDict[(con[2], con[1])] & SATDict[(con[2], con[1])]) | \
                 (SATDict[(con[1], con[0])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) | \
-                (SATDict[(con[1], con[0])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])]) | \
+                (SATDict[(con[1], con[0])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])])) & \
                 (SATDict[(con[0], con[1])] ^ SATDict[(con[1], con[0])]) & \
                 (SATDict[(con[1], con[2])] ^ SATDict[(con[2], con[1])]) & \
-                (SATDict[(con[0], con[2])] ^ SATDict[(con[2], con[0])])
+                (SATDict[(con[0], con[2])] ^ SATDict[(con[2], con[0])]))
 
         # texp = (SATDict[(con[0], con[1])] ^ SATDict[(con[1], con[0])]) & \
         #         ((SATDict[(con[0], con[1])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^ \
@@ -97,7 +97,6 @@ def topologicalSort(solvedSAT):
             continue;
     generator = nx.topological_sort(G)
     final = []
-
     for wiz in generator:
         final.append(wiz)
     return final
@@ -135,9 +134,9 @@ def write_output(filename, solution):
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description = "Constraint Solver.")
     parser.add_argument("input_file", type=str, help = "___.in")
-    # parser.add_argument("output_file", type=str, help = "___.out")
+    parser.add_argument("output_file", type=str, help = "___.out")
     args = parser.parse_args()
 
     num_wizards, num_constraints, wizards, constraints = read_input(args.input_file)
     solution = solve(num_wizards, num_constraints, wizards, constraints)
-    # write_output(args.output_file, solution)
+    write_output(args.output_file, solution)

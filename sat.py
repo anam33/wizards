@@ -17,6 +17,8 @@ def poo():
 	CB = Variable('CB')
 
 	exp = (AB & AC & BC) | (AB & CA & CB) | (BA & AC & BC) | (BA & CA & CB) & (AB ^ BA) & (AC ^ CA) & (CB ^ BC)
+
+	exp = exp & BA
 	# (A & B & D) | (A & E & F) | (B & C & D) | (C & E & F) & (A ^ C) & (B ^ E) & (F ^ D)
 	# (AB & AC & BC) ^ (AB & CA & CB) ^ (AC & BA & BC) ^ (BA & CA & CB)
 
