@@ -26,6 +26,7 @@ def solve(num_wizards, num_constraints, wizards, constraints):
         An array of wizard names in the ordering your algorithm returns
     """
     SATDict = {}
+    MyLDic = {}
     #SATDict has key: tuple, value: Variable(tuple) <-- this just returns the name but sets it up for SAT
     exp = Variable('poo')
     solver = Minisat()
@@ -50,6 +51,22 @@ def solve(num_wizards, num_constraints, wizards, constraints):
                 ((SATDict[(con[0], con[1])] ^ SATDict[(con[1], con[0])]) & \
                 (SATDict[(con[1], con[2])] ^ SATDict[(con[2], con[1])]) & \
                 (SATDict[(con[0], con[2])] ^ SATDict[(con[2], con[0])])))
+        for i in range(3):
+            for j in range(3):
+                if i != j:
+                    if con[j] in list(MyLDic.keys()):
+                        for k in MyLDic[con[j]]:
+                            if (con[i], k) not in list(SATDict.keys()):
+                                SATDict[(con[i], k))] = Variable((con[i], k))
+                            texp2 = ((SATDict[(con[i], con[j])] & SATDict[(con[j], k) >> SATDict[(con[i], k)])
+                            temp = temp & temp2
+                    else:
+                        MyLDic[con[j]] = []
+        for i in range(3):
+            for j in range(3):
+                if i != j:
+                    if con[i] not MyLDic[con[j]]:
+                        MyLDic[con[j]] = MyLDic[con[j]].append(con[i])
 
         # texp = (SATDict[(con[0], con[1])] ^ SATDict[(con[1], con[0])]) & \
         #         ((SATDict[(con[0], con[1])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^ \
@@ -72,15 +89,15 @@ def solve(num_wizards, num_constraints, wizards, constraints):
             (SATDict[(con[1], con[0])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])])
         """
         exp = exp & texp
-    for w1 in wizards:
-        for w2 in wizards:
-            for w3 in wizards:
-                tups = [(w1, w2), (w2, w3), (w1, w3)]
-                for t in tups:
-                    if t not in list(SATDict.keys()):
-                        SATDict[t] = Variable(t)
-                texp2 = (SATDict[tups[0]] & SATDict[tups[1]] >> SATDict[tups[2]])
-                exp = exp & texp2
+    # for w1 in wizards:
+    #     for w2 in wizards:
+    #         for w3 in wizards:
+    #             tups = [(w1, w2), (w2, w3), (w1, w3)]
+    #             for t in tups:
+    #                 if t not in list(SATDict.keys()):
+    #                     SATDict[t] = Variable(t)
+    #             texp2 = (SATDict[tups[0]] & SATDict[tups[1]] >> SATDict[tups[2]])
+    #             exp = exp & texp2
     solution = solver.solve(exp)
     """
     need to process solution before feeding to top sort
@@ -144,9 +161,9 @@ def write_output(filename, solution):
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description = "Constraint Solver.")
     parser.add_argument("input_file", type=str, help = "___.in")
-    # parser.add_argument("output_file", type=str, help = "___.out")
+    parser.add_argument("output_file", type=str, help = "___.out")
     args = parser.parse_args()
 
     num_wizards, num_constraints, wizards, constraints = read_input(args.input_file)
     solution = solve(num_wizards, num_constraints, wizards, constraints)
-    # write_output(args.output_file, solution)
+    write_output(args.output_file, solution)
