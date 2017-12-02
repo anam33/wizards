@@ -27,19 +27,29 @@ def solve(num_wizards, num_constraints, wizards, constraints):
     """
     SATDict = {}
     #SATDict has key: tuple, value: Variable(tuple) <-- this just returns the name but sets it up for SAT
-    exp = ''
+    exp = Variable('poo')
     solver = Minisat()
     for con in constraints:
         tups = [(con[0], con[1]), (con[1], con[0]), (con[0], con[2]), (con[2], con[0]), (con[1], con[2]), (con[2], con[1])]
         for t in tups:
-            if t not in SATDict.keys():
+            if t not in list(SATDict.keys()):
                 SATDict[t] = Variable(t)
 
-        texp = exp = (SATDict[(con[0], con[1])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^ \
-            (SATDict[(con[1], con[0])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^ \
-            (SATDict[(con[0], con[1])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])]) ^ \
-            (SATDict[(con[1], con[0])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])])
+        # AB = SATDict[(con[0], con[1])]
+        # BA = SATDict[(con[1], con[0])]
+        # BC = SATDict[(con[1], con[2])]
+        # CB = SATDict[(con[2], con[1])]
+        # AC = SATDict[(con[0], con[2])]
+        # CA = SATDict[(con[2], con[0])]
+        # (AB & AC & BC) | (AB & CA & CB) | (BA & AC & BC) | (BA & CA & CB) & (AB ^ BA) & (AC ^ CA) & (CB ^ BC)
 
+        texp = (SATDict[(con[0], con[1])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) | \
+                (SATDict[(con[0], con[1])] & SATDict[(con[2], con[1])] & SATDict[(con[2], con[1])]) | \
+                (SATDict[(con[1], con[0])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) | \
+                (SATDict[(con[1], con[0])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])]) | \
+                (SATDict[(con[0], con[1])] ^ SATDict[(con[1], con[0])]) & \
+                (SATDict[(con[1], con[2])] ^ SATDict[(con[2], con[1])]) & \
+                (SATDict[(con[0], con[2])] ^ SATDict[(con[2], con[0])])
 
         # texp = (SATDict[(con[0], con[1])] ^ SATDict[(con[1], con[0])]) & \
         #         ((SATDict[(con[0], con[1])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^ \
@@ -61,10 +71,7 @@ def solve(num_wizards, num_constraints, wizards, constraints):
             (SATDict[(con[0], con[1])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])]) ^
             (SATDict[(con[1], con[0])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])])
         """
-        if exp == '':
-            exp = texp
-        else:
-            exp = exp & texp
+        exp = exp & texp
     solution = solver.solve(exp)
     """
     need to process solution before feeding to top sort
@@ -75,20 +82,24 @@ def solve(num_wizards, num_constraints, wizards, constraints):
         if solution[SATDict[key]]:
             solvedSAT.append(key)
     sol = topologicalSort(solvedSAT)
-    print sol
+    return sol
 
 def topologicalSort(solvedSAT):
     G = nx.DiGraph()
     for var in solvedSAT:
         #note: I changed following line because you can directly get tuple now
         s, t = var
-        G.add_edge(s, t)
+        try:
+            G.add_edge(s, t)
+            cycle = nx.find_cycle(G, t)
+            G.remove_edge(s, t)
+        except nx.NetworkXNoCycle:
+            continue;
     generator = nx.topological_sort(G)
     final = []
-    index = 0
+
     for wiz in generator:
-        final[index] = wiz
-        index += 1
+        final.append(wiz)
     return final
 
 

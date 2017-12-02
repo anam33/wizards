@@ -16,7 +16,9 @@ def poo():
 	CA = Variable('CA')
 	CB = Variable('CB')
 
-	exp = (AB & AC & BC) ^ (AB & CA & CB) ^ (AC & BA & BC) ^ (BA & CA & CB)
+	exp = (AB & AC & BC) | (AB & CA & CB) | (BA & AC & BC) | (BA & CA & CB) & (AB ^ BA) & (AC ^ CA) & (CB ^ BC)
+	# (A & B & D) | (A & E & F) | (B & C & D) | (C & E & F) & (A ^ C) & (B ^ E) & (F ^ D)
+	# (AB & AC & BC) ^ (AB & CA & CB) ^ (AC & BA & BC) ^ (BA & CA & CB)
 
 	solution = solver.solve(exp)
 
