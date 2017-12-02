@@ -90,19 +90,24 @@ def solve(num_wizards, num_constraints, wizards, constraints):
         """
         exp = exp & texp
     for i in range(num_wizards):
-        for j in range(i,n um_wizards):
+        for j in range(i, num_wizards):
             for k in range(j, num_wizards):
-                tups = [(wizards[i], wizards[j]), (wizards[j], wizards[k]), (wizards[i], wizards[k]), (wizards[j], wizards[i]), (wizards[k], wizards[j]), (wizards[k], wizards[i])]
-                for t in tups:
+                tups2 = [(wizards[i], wizards[j]), (wizards[j], wizards[k]), (wizards[i], wizards[k]), (wizards[j], wizards[i]), (wizards[k], wizards[j]), (wizards[k], wizards[i])]
+                for t in tups2:
                     if t not in list(SATDict.keys()):
                         SATDict[t] = Variable(t)
-                texp2 = (SATDict[tups[0]] & SATDict[tups[1]] >> SATDict[tups[2]]) & \
-                        (SATDict[tups[3]] & SATDict[tups[2]] >> SATDict[tups[1]]) & \
-                        (SATDict[tups[1]] & SATDict[tups[5]] >> SATDict[tups[3]]) & \
-                        (SATDict[tups[4]] & SATDict[tups[3]] >> SATDict[tups[5]]) & \
-                        (SATDict[tups[2]] & SATDict[tups[4]] >> SATDict[tups[0]]) & \
-                        (SATDict[tups[5]] & SATDict[tups[0]] >> SATDict[tups[4]])
-                exp = exp & texp2
+                temp2 = (SATDict[tups2[0]] & SATDict[tups2[1]] >> SATDict[tups2[2]])
+                exp = exp & temp2
+                temp2 = (SATDict[tups2[3]] & SATDict[tups2[2]] >> SATDict[tups2[1]])
+                exp = exp & temp2
+                temp2 = (SATDict[tups2[1]] & SATDict[tups2[5]] >> SATDict[tups2[3]])
+                exp = exp & temp2
+                temp2 = (SATDict[tups2[4]] & SATDict[tups2[3]] >> SATDict[tups2[5]])
+                exp = exp & temp2
+                temp2  = (SATDict[tups2[2]] & SATDict[tups2[4]] >> SATDict[tups2[0]])
+                exp = exp & temp2
+                temp2 = (SATDict[tups2[5]] & SATDict[tups2[0]] >> SATDict[tups2[4]])
+                exp = exp & temp2
     solution = solver.solve(exp)
     """
     need to process solution before feeding to top sort
