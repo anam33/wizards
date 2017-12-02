@@ -51,22 +51,22 @@ def solve(num_wizards, num_constraints, wizards, constraints):
                 ((SATDict[(con[0], con[1])] ^ SATDict[(con[1], con[0])]) & \
                 (SATDict[(con[1], con[2])] ^ SATDict[(con[2], con[1])]) & \
                 (SATDict[(con[0], con[2])] ^ SATDict[(con[2], con[0])])))
-        for i in range(3):
-            for j in range(3):
-                if i != j:
-                    if con[j] in list(MyLDic.keys()):
-                        for k in MyLDic[con[j]]:
-                            if (con[i], k) not in list(SATDict.keys()):
-                                SATDict[(con[i], k))] = Variable((con[i], k))
-                            texp2 = ((SATDict[(con[i], con[j])] & SATDict[(con[j], k) >> SATDict[(con[i], k)])
-                            temp = temp & temp2
-                    else:
-                        MyLDic[con[j]] = []
-        for i in range(3):
-            for j in range(3):
-                if i != j:
-                    if con[i] not MyLDic[con[j]]:
-                        MyLDic[con[j]] = MyLDic[con[j]].append(con[i])
+        # for i in range(3):
+        #     for j in range(3):
+        #         if i != j:
+        #             if con[j] in list(MyLDic.keys()):
+        #                 for k in MyLDic[con[j]]:
+        #                     if (con[i], k) not in list(SATDict.keys()):
+        #                         SATDict[(con[i], k))] = Variable((con[i], k))
+        #                     texp2 = ((SATDict[(con[i], con[j])] & SATDict[(con[j], k) >> SATDict[(con[i], k)])
+        #                     temp = temp & temp2
+        #             else:
+        #                 MyLDic[con[j]] = []
+        # for i in range(3):
+        #     for j in range(3):
+        #         if i != j:
+        #             if con[i] not MyLDic[con[j]]:
+        #                 MyLDic[con[j]] = MyLDic[con[j]].append(con[i])
 
         # texp = (SATDict[(con[0], con[1])] ^ SATDict[(con[1], con[0])]) & \
         #         ((SATDict[(con[0], con[1])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^ \
@@ -89,15 +89,20 @@ def solve(num_wizards, num_constraints, wizards, constraints):
             (SATDict[(con[1], con[0])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])])
         """
         exp = exp & texp
-    # for w1 in wizards:
-    #     for w2 in wizards:
-    #         for w3 in wizards:
-    #             tups = [(w1, w2), (w2, w3), (w1, w3)]
-    #             for t in tups:
-    #                 if t not in list(SATDict.keys()):
-    #                     SATDict[t] = Variable(t)
-    #             texp2 = (SATDict[tups[0]] & SATDict[tups[1]] >> SATDict[tups[2]])
-    #             exp = exp & texp2
+    for i in range(num_wizards):
+        for j in range(i,n um_wizards):
+            for k in range(j, num_wizards):
+                tups = [(wizards[i], wizards[j]), (wizards[j], wizards[k]), (wizards[i], wizards[k]), (wizards[j], wizards[i]), (wizards[k], wizards[j]), (wizards[k], wizards[i])]
+                for t in tups:
+                    if t not in list(SATDict.keys()):
+                        SATDict[t] = Variable(t)
+                texp2 = (SATDict[tups[0]] & SATDict[tups[1]] >> SATDict[tups[2]]) & \
+                        (SATDict[tups[3]] & SATDict[tups[2]] >> SATDict[tups[1]]) & \
+                        (SATDict[tups[1]] & SATDict[tups[5]] >> SATDict[tups[3]]) & \
+                        (SATDict[tups[4]] & SATDict[tups[3]] >> SATDict[tups[5]]) & \
+                        (SATDict[tups[2]] & SATDict[tups[4]] >> SATDict[tups[0]]) & \
+                        (SATDict[tups[5]] & SATDict[tups[0]] >> SATDict[tups[4]])
+                exp = exp & texp2
     solution = solver.solve(exp)
     """
     need to process solution before feeding to top sort
@@ -118,8 +123,8 @@ def topologicalSort(solvedSAT):
         s, t = var
         try:
             G.add_edge(s, t)
-            # cycle = nx.find_cycle(G, t)
-            # G.remove_edge(s, t)
+            cycle = nx.find_cycle(G, t)
+            G.remove_edge(s, t)
         except nx.NetworkXNoCycle:
             continue;
     generator = nx.topological_sort(G)
