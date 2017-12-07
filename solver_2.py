@@ -55,12 +55,13 @@ def solve(num_wizards, num_constraints, wizards, constraints):
     for w1 in wizards:
         for w2 in wizards:
             for w3 in wizards:
-                tups = [(w1, w2), (w2, w3), (w1, w3)]
-                for t in tups:
-                    if t not in list(SATDict.keys()):
-                        SATDict[t] = Variable(t)
-                texp2 = ((SATDict[tups[0]] & SATDict[tups[1]]) >> SATDict[tups[2]])
-                exp = exp & texp2
+                if (w1 != w2 and w1 != w3 and w2 != w3):
+                    tups = [(w1, w2), (w2, w3), (w1, w3)]
+                    for t in tups:
+                        if t not in list(SATDict.keys()):
+                            SATDict[t] = Variable(t)
+                    texp2 = ((SATDict[tups[0]] & SATDict[tups[1]]) >> SATDict[tups[2]])
+                    exp = exp & texp2
     solution = solver.solve(exp)
     """
     need to process solution before feeding to top sort
