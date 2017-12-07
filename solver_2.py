@@ -26,9 +26,8 @@ def solve(num_wizards, num_constraints, wizards, constraints):
         An array of wizard names in the ordering your algorithm returns
     """
     SATDict = {}
-    MyLDic = {}
     #SATDict has key: tuple, value: Variable(tuple) <-- this just returns the name but sets it up for SAT
-    exp = Variable('poo')
+    exp = Variable('empty')
     solver = Minisat()
     for con in constraints:
         tups = [(con[0], con[1]), (con[1], con[0]), (con[0], con[2]), (con[2], con[0]), (con[1], con[2]), (con[2], con[1])]
@@ -51,63 +50,17 @@ def solve(num_wizards, num_constraints, wizards, constraints):
                 ((SATDict[(con[0], con[1])] ^ SATDict[(con[1], con[0])]) & \
                 (SATDict[(con[1], con[2])] ^ SATDict[(con[2], con[1])]) & \
                 (SATDict[(con[0], con[2])] ^ SATDict[(con[2], con[0])])))
-        # for i in range(3):
-        #     for j in range(3):
-        #         if i != j:
-        #             if con[j] in list(MyLDic.keys()):
-        #                 for k in MyLDic[con[j]]:
-        #                     if (con[i], k) not in list(SATDict.keys()):
-        #                         SATDict[(con[i], k))] = Variable((con[i], k))
-        #                     texp2 = ((SATDict[(con[i], con[j])] & SATDict[(con[j], k) >> SATDict[(con[i], k)])
-        #                     temp = temp & temp2
-        #             else:
-        #                 MyLDic[con[j]] = []
-        # for i in range(3):
-        #     for j in range(3):
-        #         if i != j:
-        #             if con[i] not MyLDic[con[j]]:
-        #                 MyLDic[con[j]] = MyLDic[con[j]].append(con[i])
 
-        # texp = (SATDict[(con[0], con[1])] ^ SATDict[(con[1], con[0])]) & \
-        #         ((SATDict[(con[0], con[1])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^ \
-        #         (SATDict[(con[1], con[0])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^ \
-        #         (SATDict[(con[0], con[1])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])]) ^ \
-        #         (SATDict[(con[1], con[0])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])])) \
-
-        """
-        I think it could reduce to this because to alternating AB or BA is already accounted for
-        so we could make it as below
-        (AB xor BA) and ((AC and BC) xor (CA and CB))
-        exp = (SATDict[(con[0], con[1])] ^ SATDict[(con[1], con[0])]) &
-            ((SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^
-            (SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])]))
-        or 
-        (AB and AC and BC) xor (AB and CA and CB) xor (BA and AC and BC) xor (BA and CA and CB))
-        exp = (SATDict[(con[0], con[1])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^
-            (SATDict[(con[1], con[0])] & SATDict[(con[0], con[2])] & SATDict[(con[1], con[2])]) ^
-            (SATDict[(con[0], con[1])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])]) ^
-            (SATDict[(con[1], con[0])] & SATDict[(con[2], con[0])] & SATDict[(con[2], con[1])])
-        """
         exp = exp & texp
-    for i in range(num_wizards):
-        for j in range(i, num_wizards):
-            for k in range(j, num_wizards):
-                tups2 = [(wizards[i], wizards[j]), (wizards[j], wizards[k]), (wizards[i], wizards[k]), (wizards[j], wizards[i]), (wizards[k], wizards[j]), (wizards[k], wizards[i])]
-                for t in tups2:
+    for w1 in wizards:
+        for w2 in wizards:
+            for w3 in wizards:
+                tups = [(w1, w2), (w2, w3), (w1, w3)]
+                for t in tups:
                     if t not in list(SATDict.keys()):
                         SATDict[t] = Variable(t)
-                temp2 = (SATDict[tups2[0]] & SATDict[tups2[1]] >> SATDict[tups2[2]])
-                exp = exp & temp2
-                temp2 = (SATDict[tups2[3]] & SATDict[tups2[2]] >> SATDict[tups2[1]])
-                exp = exp & temp2
-                temp2 = (SATDict[tups2[1]] & SATDict[tups2[5]] >> SATDict[tups2[3]])
-                exp = exp & temp2
-                temp2 = (SATDict[tups2[4]] & SATDict[tups2[3]] >> SATDict[tups2[5]])
-                exp = exp & temp2
-                temp2  = (SATDict[tups2[2]] & SATDict[tups2[4]] >> SATDict[tups2[0]])
-                exp = exp & temp2
-                temp2 = (SATDict[tups2[5]] & SATDict[tups2[0]] >> SATDict[tups2[4]])
-                exp = exp & temp2
+                texp2 = ((SATDict[tups[0]] & SATDict[tups[1]]) >> SATDict[tups[2]])
+                exp = exp & texp2
     solution = solver.solve(exp)
     """
     need to process solution before feeding to top sort
@@ -124,7 +77,6 @@ def solve(num_wizards, num_constraints, wizards, constraints):
 def topologicalSort(solvedSAT):
     G = nx.DiGraph()
     for var in solvedSAT:
-        #note: I changed following line because you can directly get tuple now
         s, t = var
         try:
             G.add_edge(s, t)
